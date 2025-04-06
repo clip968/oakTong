@@ -486,13 +486,27 @@ class MainWindow(QMainWindow):
 
     # *** "전체 목록 보기" 버튼 슬롯 추가됨 ***
     @pyqtSlot()
+    # ui.py (MainWindow 클래스 내 on_show_all_clicked 메서드 수정)
+
+    @pyqtSlot()
     def on_show_all_clicked(self):
         """'전체 목록' 버튼 클릭 시 호출됩니다."""
         print("UI: 'Show All' button clicked.")
-        # 검색창 내용 지우기 (textChanged 시그널이 발생하여 on_search_changed 호출 기대)
+        # 1. 검색창 내용 지우기
+        # clear() 호출 시 textChanged 시그널 발생 여부와 관계없이 확실하게 목록을 업데이트하기 위해
+        # 먼저 시그널을 잠시 막고 clear() 호출 후 직접 update_whiskey_list() 호출
+        self.search_input.blockSignals(True) # 시그널 발생 방지
         self.search_input.clear()
-        # 만약 clear()가 textChanged를 발생시키지 않으면 아래 주석 해제
-        # self.update_whiskey_list()
+        self.search_input.blockSignals(False) # 시그널 다시 활성화
+
+        # 2. 정렬 기준 초기화 (선택 사항)
+        # self.sort_combo.blockSignals(True)
+        # self.sort_combo.setCurrentIndex(0)
+        # self.sort_combo.blockSignals(False)
+
+        # 3. 위스키 목록 업데이트 명시적 호출
+        print("UI: Explicitly calling update_whiskey_list from on_show_all_clicked.")
+        self.update_whiskey_list()
 
     @pyqtSlot()
     def on_save_prefs_clicked(self):
