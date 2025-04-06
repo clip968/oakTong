@@ -6,9 +6,9 @@
         "user_sex": null
     },
     "preference": {
-        "sweetness": 3,
-        "smoky": 3,
-        "fruity": 3,
+        "sweetness": 2,
+        "smoky": 4,
+        "fruity": 5,
         "spicy": 3,
         "price_range": [
             null,
@@ -20,6 +20,7 @@
         "collection": [
             "W002",
             "W004"
+            "W002"
         ]
     },
     "review_ids": []
