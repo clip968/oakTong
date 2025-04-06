@@ -21,7 +21,6 @@ USER_FILE = os.path.join(DATA_DIR, "user_data.json")
 WHISKEY_FILE = os.path.join(DATA_DIR, "whiskey_catalog.json")
 REVIEWS_FILE = os.path.join(DATA_DIR, "reviews.json")
 
-
 class System:
     """
     애플리케이션 전체 시스템을 관리하고 조정하는 메인 클래스입니다.
