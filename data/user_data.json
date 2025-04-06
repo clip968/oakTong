@@ -1,0 +1,23 @@
+{
+    "user_info": {
+        "user_id": "clip968",
+        "user_name": "남재준",
+        "user_age": null,
+        "user_sex": null
+    },
+    "preference": {
+        "sweetness": 3,
+        "smoky": 3,
+        "fruity": 3,
+        "spicy": 3,
+        "price_range": [
+            null,
+            null
+        ]
+    },
+    "history": {
+        "viewed": [],
+        "collection": []
+    },
+    "review_ids": []
+}
