@@ -1,17 +1,15 @@
-# whiskey_type.py
-from enum import Enum, auto
+# whiskey_type.py - 간소화 버전
+from enum import Enum
 
 class WhiskeyType(Enum):
-    """
-    위스키 타입을 나타내는 열거형(Enum)입니다.
-    """
+    """위스키 타입을 나타내는 열거형"""
     SINGLE_MALT = "Single Malt"
     BLENDED = "Blended"
-    BOURBON = "Bourbon"
+    BOURBON = "Bourbon" 
     RYE = "Rye"
     IRISH = "Irish"
     JAPANESE = "Japanese"
     OTHER = "Other"
-
-    def __str__(self) -> str:
+    
+    def __str__(self):
         return self.value
