@@ -75,28 +75,6 @@ class System:
             print(f"Total reviews loaded: {len(self.all_reviews)}")
             return True # 사용자 로드 성공 -> True 반환
 
-    def login(self, user_id: str, password: Optional[str] = None) -> bool:
-        """단일 사용자 환경에서는 주로 로드된 사용자인지 확인하는 역할."""
-        print(f"Login attempt for user: {user_id}")
-        if self.current_user and self.current_user.user_id == user_id:
-            print(f"User {user_id} is already loaded. Login successful.")
-            if not self.recommendation_engine: # 엔진 설정 안됐으면 설정
-                 self.set_recommendation_engine(Recommendation_Preference)
-            return True
-        # 로드된 사용자와 다르거나, 사용자가 없으면 실패 처리
-        print("Login failed: User not loaded or mismatch.")
-        return False
-
-    def logout(self):
-        """로그아웃 처리 (단일 사용자 앱에서는 주로 앱 종료 시 상태 저장)."""
-        if self.current_user:
-            print(f"Logging out user: {self.current_user.user_id}")
-            self.save_system_state() # 상태 저장
-            self.current_user = None
-            self.recommendation_engine = None
-        else:
-            print("No user is currently logged in.")
-
     def register_new_user(self, user_info: dict) -> bool:
         """새 사용자(초기 사용자)를 등록합니다."""
         if self.current_user:
@@ -403,3 +381,59 @@ class System:
             print(f"Error getting recommendations from {type(engine_to_use).__name__}: {e}")
             # traceback.print_exc() # 디버깅 시 스택 트레이스 출력
             return []
+
+    def run(self):
+        """애플리케이션 메인 실행 함수"""
+        print("Application starting...")
+        
+        # PyQt5 관련 모듈 import (시스템 클래스 내에서도 임포트)
+        from PyQt5.QtWidgets import QApplication, QMessageBox
+        import sys
+        
+        # PyQt5 애플리케이션 인스턴스 생성
+        app = QApplication(sys.argv)
+        print("QApplication instance created.")
+        
+        # 시스템 초기화 결과 확인
+        initialization_successful = self.initialize()
+        print(f"System initialization attempt finished. User loaded: {initialization_successful}")
+        
+        # UI 모듈 import (런타임에 임포트하여 순환 참조 방지)
+        from ui import MainWindow
+        
+        # MainWindow 인스턴스 생성
+        main_window = MainWindow(system_reference=self)
+        print("MainWindow instance created.")
+        
+        # 사용자 설정 필요 시 UI 호출
+        if not initialization_successful:
+            print("Requesting user setup from UI...")
+            # MainWindow에 사용자 설정을 요청하는 메서드 호출
+            if not main_window.prompt_for_user_setup():
+                # 사용자 설정이 취소되거나 실패하면 프로그램 종료
+                print("User setup cancelled or failed. Exiting.")
+                QMessageBox.critical(None, "사용자 설정 오류", "초기 사용자 설정이 필요합니다. 프로그램을 종료합니다.")
+                sys.exit(1)
+            else:
+                # 사용자 설정 성공 후 UI에 초기 데이터 다시 로드/표시
+                print("User setup complete. Reloading initial data for UI.")
+                main_window.load_initial_data() # UI에 데이터 표시
+        
+        # 메인 윈도우 표시
+        main_window.show()
+        print("MainWindow shown.")
+        
+        # PyQt5 이벤트 루프 시작
+        print("Starting PyQt5 event loop...")
+        exit_code = app.exec_()
+        print(f"Application finished with exit code: {exit_code}")
+        
+        # 종료 전 상태 저장
+        self.save_system_state()
+        
+        sys.exit(exit_code)
+
+# 프로그램 메인 실행 지점
+if __name__ == '__main__':
+    system = System()
+    system.run()
