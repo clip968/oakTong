@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
         self.pref_spicy_slider = QSlider(Qt.Horizontal)
         sliders = [self.pref_sweet_slider, self.pref_smoky_slider, 
                   self.pref_fruity_slider, self.pref_spicy_slider]
-        slider_labels = ["단맛", "스모키", "과일향", "스파이시"]
+        slider_labels = ["무게감", "깊이", "스모키", "단맛"]
         self.pref_value_labels = {}
         
         for i, slider in enumerate(sliders):
@@ -407,10 +407,10 @@ class MainWindow(QMainWindow):
             self.pref_fruity_slider.setValue(preference.fruity_preference)
             self.pref_spicy_slider.setValue(preference.spicy_preference)
             
-            self.pref_value_labels["단맛"].setText(str(preference.sweetness_preference))
-            self.pref_value_labels["스모키"].setText(str(preference.smoky_preference))
-            self.pref_value_labels["과일향"].setText(str(preference.fruity_preference))
-            self.pref_value_labels["스파이시"].setText(str(preference.spicy_preference))
+            self.pref_value_labels["무게감"].setText(str(preference.sweetness_preference))
+            self.pref_value_labels["깊이"].setText(str(preference.smoky_preference))
+            self.pref_value_labels["스모키"].setText(str(preference.fruity_preference))
+            self.pref_value_labels["단맛"].setText(str(preference.spicy_preference))
             
             min_p, max_p = preference.get_price_range()
             self.pref_price_min_input.setText(str(min_p) if min_p is not None else "")
