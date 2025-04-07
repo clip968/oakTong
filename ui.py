@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QListWidgetItem, QGridLayout, QFormLayout, 
                              QDialog, QDialogButtonBox, QInputDialog)
 from PyQt5.QtCore import Qt, pyqtSlot
-from PyQt5.QtGui import QIntValidator
+from PyQt5.QtGui import QIntValidator, QPixmap
 
 class MainWindow(QMainWindow):
     """메인 애플리케이션 윈도우 클래스"""
@@ -93,6 +93,15 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(self.details_tab)
         form_layout = QFormLayout()
         
+        # 이미지 표시 영역
+        self.detail_image_label = QLabel("No Image")
+        self.detail_image_label.setMinimumSize(200, 200)
+        self.detail_image_label.setMaximumSize(400, 600)
+        self.detail_image_label.setAlignment(Qt.AlignCenter)
+        self.detail_image_label.setStyleSheet("border: 1px solid #CCCCCC;")
+        layout.addWidget(self.detail_image_label)
+
+        # 세부 정보 폼 생성
         self.detail_name_label = QLabel("N/A")
         self.detail_origin_label = QLabel("N/A")
         self.detail_type_label = QLabel("N/A")
@@ -338,9 +347,16 @@ class MainWindow(QMainWindow):
                 self.detail_name_label.setText(details.get('name', 'N/A'))
                 self.detail_origin_label.setText(details.get('origin', 'N/A'))
                 self.detail_type_label.setText(details.get('type', 'N/A'))
+
+                image_path = details.get('image_path')
+                if image_path:
+                    self.detail_image_label.setPixmap(QPixmap(f"./data/{image_path}"))
+                else:
+                    self.detail_image_label.setText("No Image")
+                    self.detail_image_label.setPixmap(QPixmap())
                 
                 price = details.get('price')
-                self.detail_price_label.setText(f"${price:.2f}" if price is not None else "N/A")
+                self.detail_price_label.setText(f"{format(price, ',')}원" if price is not None else "N/A")
                 
                 abv = details.get('alcohol_percentage')
                 self.detail_abv_label.setText(f"{abv}%" if abv is not None else "N/A")
