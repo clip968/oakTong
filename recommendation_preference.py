@@ -1,22 +1,22 @@
-# recommendation_preference.py - 간소화 버전
 from recommendation import Recommendation
 
 class Recommendation_Preference(Recommendation):
-    """사용자 선호도 기반 추천 클래스"""
+    # 사용자 선호도 기반 추천
     
     def __init__(self, user_reference, whiskeys_reference):
-        """선호도 기반 추천 초기화"""
         super().__init__(user_reference, whiskeys_reference)
     
     def get_recommendations(self, count):
-        """선호도 기반 추천 목록 반환"""
+        # 사용자 기반 추천 목록 반환
         print(f"사용자 {self.user_reference.user_id}의 선호도 기반 추천 {count}개")
         
+        # 사용자 선호도 정보 가져오기
         user_preference = self.user_reference.get_preference()
         if not user_preference:
             print("사용자 선호도 정보가 없습니다")
             return []
         
+        # 모든 위스키 정보 가져오기
         all_whiskeys = self.whiskeys_reference.get_all_whiskeys()
         scores = {}
         
@@ -31,7 +31,9 @@ class Recommendation_Preference(Recommendation):
         return recommended_ids
     
     def calculate_preference_match(self, user_preference, whiskey):
-        """선호도와 위스키 특성 간 매칭 점수 계산"""
+        # 내 선호도와 위스키 맛 프로필 비교해서 추천 점수 계산
+
+        # 선호도 벡터와 맛 프로필 벡터 가져오기
         pref_vector = user_preference.get_preference_vector()
         taste_vector = whiskey.get_taste_vector()
         

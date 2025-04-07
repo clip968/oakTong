@@ -1,27 +1,25 @@
-# whiskey.py - 간소화 버전
 class Whiskey:
-    """개별 위스키 정보를 담는 클래스"""
-    
+    # 위스키 기본 정보(이거는 나중가서 바꿀 수도 있음)
     def __init__(self, whiskey_id, name, taste_profile, origin, price, 
                  alcohol_percentage, whiskey_type, image_path=None, age_years=None):
-        """위스키 객체 초기화"""
-        self.id = whiskey_id
-        self.name = name
-        self.taste_profile = taste_profile
-        self.origin = origin
-        self.price = price
-        self.alcohol_percentage = alcohol_percentage
-        self.type = whiskey_type
-        self.image_path = image_path
-        self.age_years = age_years
-        self.user_review_ids = []
+
+        self.id = whiskey_id #위스키 id
+        self.name = name # 위스키 이름
+        self.taste_profile = taste_profile # 맛 정보
+        self.origin = origin # 원산지
+        self.price = price # 가격
+        self.alcohol_percentage = alcohol_percentage # 도수
+        self.type = whiskey_type #위스키 종류
+        self.image_path = image_path # 이미지 경로
+        self.age_years = age_years # 년도
+        self.user_review_ids = [] # 리뷰 ID 목록
     
     def get_taste_vector(self):
-        """맛 프로필 벡터 반환"""
+        # 맛 프로필 벡터로 변환
         return self.taste_profile.get_vector()
     
     def get_basic_info(self):
-        """기본 정보 반환"""
+        # 기본 정보 호출
         return {
             "id": self.id,
             "name": self.name,
@@ -30,7 +28,7 @@ class Whiskey:
         }
     
     def get_full_details(self):
-        """모든 상세 정보 반환"""
+        # 모든 상세 정보 반환
         return {
             "id": self.id,
             "name": self.name,
@@ -44,7 +42,7 @@ class Whiskey:
         }
     
     def add_review_id(self, review_id):
-        """리뷰 ID 추가"""
+        # 리뷰 id 추가
         if review_id not in self.user_review_ids:
             self.user_review_ids.append(review_id)
     

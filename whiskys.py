@@ -1,13 +1,9 @@
-# whiskys.py - 간소화 버전
 class Whiskys:
-    """위스키 카탈로그 관리 클래스"""
-    
     def __init__(self):
-        """카탈로그 초기화"""
         self.whiskey_catalog = {}  # 위스키 ID -> Whiskey 객체
     
+    # 위스키 추가
     def add_whiskey(self, whiskey):
-        """카탈로그에 위스키 추가"""
         if whiskey.id not in self.whiskey_catalog:
             self.whiskey_catalog[whiskey.id] = whiskey
             print(f"위스키 추가됨: {whiskey.name}")

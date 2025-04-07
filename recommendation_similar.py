@@ -1,17 +1,15 @@
-# recommendation_similar.py - 간소화 버전
 from recommendation import Recommendation
 import math
 
 class Recommendation_Similar(Recommendation):
-    """유사 위스키 추천 클래스"""
+    # 유사한 위스키 추천
     
     def __init__(self, user_reference, whiskeys_reference):
-        """유사 추천 초기화"""
         super().__init__(user_reference, whiskeys_reference)
         self.similarity_threshold = 0.5  # 유사도 임계값
     
     def get_recommendations(self, count, base_whiskey_id=None):
-        """유사 위스키 추천 목록 반환"""
+        # 유사 위스키 추천 목록 반환
         if not base_whiskey_id:
             # 기준 위스키가 없으면 최근 본 위스키 사용
             history = self.user_reference.get_history()
@@ -27,7 +25,7 @@ class Recommendation_Similar(Recommendation):
         return self.find_similar_whiskeys(base_whiskey_id, count)
     
     def find_similar_whiskeys(self, base_whiskey_id, count):
-        """유사 위스키 찾기"""
+        # 유사 위스키 찾아줌
         base_whiskey = self.whiskeys_reference.get_whiskey_details(base_whiskey_id)
         if not base_whiskey:
             print(f"기준 위스키 ID {base_whiskey_id}를 찾을 수 없습니다")
@@ -51,7 +49,7 @@ class Recommendation_Similar(Recommendation):
         return similar_ids
     
     def calculate_taste_similarity(self, whiskey1, whiskey2):
-        """맛 프로필 간 유사도 계산 (코사인 유사도)"""
+        # 코사인 유사도로 맛 프로필 간 유사도 계산
         vec1 = whiskey1.get_taste_vector()
         vec2 = whiskey2.get_taste_vector()
         

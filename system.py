@@ -115,10 +115,10 @@ class System:
         if self.current_user.get_preference():
             pref = self.current_user.get_preference()
             user_data["preference"] = {
+                "body": pref.body_preference,
+                "richness": pref.richness_preference,
+                "smoke": pref.smoke_preference,
                 "sweetness": pref.sweetness_preference,
-                "smoky": pref.smoky_preference,
-                "fruity": pref.fruity_preference,
-                "spicy": pref.spicy_preference,
                 "price_range": [pref.preferred_price_range[0], pref.preferred_price_range[1]]
             }
         
@@ -175,9 +175,9 @@ class System:
                     if pref_data:
                         preference = User_Preference(loaded_user.user_id)
                         preference.sweetness_preference = pref_data.get('sweetness', 3)
-                        preference.smoky_preference = pref_data.get('smoky', 3)
-                        preference.fruity_preference = pref_data.get('fruity', 3)
-                        preference.spicy_preference = pref_data.get('spicy', 3)
+                        preference.smoke_preference = pref_data.get('smoke', 3)
+                        preference.richness_preference = pref_data.get('richness', 3)
+                        preference.body_preference = pref_data.get('body', 3)
                         
                         price_range = pref_data.get('price_range', [None, None])
                         preference.preferred_price_range = (price_range[0], price_range[1])

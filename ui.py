@@ -1,4 +1,3 @@
-# ui.py - 간소화 버전
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QListWidget, QLabel, QTextEdit, 
                              QPushButton, QLineEdit, QSlider, QSpinBox, 
@@ -128,17 +127,17 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.details_tab, "상세 정보")
     
     def init_preference_tab(self):
-        """사용자 선호도 탭 UI 생성"""
+        # 사용자 선호도 탭 UI 생성
         self.preference_tab = QWidget()
         layout = QVBoxLayout(self.preference_tab)
         grid_layout = QGridLayout()
         
-        self.pref_sweet_slider = QSlider(Qt.Horizontal)
-        self.pref_smoky_slider = QSlider(Qt.Horizontal)
-        self.pref_fruity_slider = QSlider(Qt.Horizontal)
-        self.pref_spicy_slider = QSlider(Qt.Horizontal)
-        sliders = [self.pref_sweet_slider, self.pref_smoky_slider, 
-                  self.pref_fruity_slider, self.pref_spicy_slider]
+        self.pref_body_slider = QSlider(Qt.Horizontal)
+        self.pref_richness_slider = QSlider(Qt.Horizontal)
+        self.pref_smoke_slider = QSlider(Qt.Horizontal)
+        self.pref_sweetness_slider = QSlider(Qt.Horizontal)
+        sliders = [self.pref_body_slider, self.pref_richness_slider, 
+                  self.pref_smoke_slider, self.pref_sweetness_slider]
         slider_labels = ["무게감", "깊이", "스모키", "단맛"]
         self.pref_value_labels = {}
         
@@ -394,23 +393,23 @@ class MainWindow(QMainWindow):
         """사용자 선호도 UI에 표시"""
         if preference:
             # 시그널 비활성화
-            sliders = [self.pref_sweet_slider, self.pref_smoky_slider, 
-                      self.pref_fruity_slider, self.pref_spicy_slider]
+            sliders = [self.pref_sweetness_slider, self.pref_smoke_slider, 
+                      self.pref_body_slider, self.pref_richness_slider]
             inputs = [self.pref_price_min_input, self.pref_price_max_input]
             
             for w in sliders + inputs:
                 w.blockSignals(True)
             
             # 값 설정
-            self.pref_sweet_slider.setValue(preference.sweetness_preference)
-            self.pref_smoky_slider.setValue(preference.smoky_preference)
-            self.pref_fruity_slider.setValue(preference.fruity_preference)
-            self.pref_spicy_slider.setValue(preference.spicy_preference)
+            self.pref_sweetness_slider.setValue(preference.sweetness_preference)
+            self.pref_smoke_slider.setValue(preference.smoke_preference)
+            self.pref_body_slider.setValue(preference.body_preference)
+            self.pref_richness_slider.setValue(preference.richness_preference)
             
-            self.pref_value_labels["무게감"].setText(str(preference.sweetness_preference))
-            self.pref_value_labels["깊이"].setText(str(preference.smoky_preference))
-            self.pref_value_labels["스모키"].setText(str(preference.fruity_preference))
-            self.pref_value_labels["단맛"].setText(str(preference.spicy_preference))
+            self.pref_value_labels["무게감"].setText(str(preference.body_preference))
+            self.pref_value_labels["깊이"].setText(str(preference.richness_preference))
+            self.pref_value_labels["스모키"].setText(str(preference.smoke_preference))
+            self.pref_value_labels["단맛"].setText(str(preference.sweetness_preference))
             
             min_p, max_p = preference.get_price_range()
             self.pref_price_min_input.setText(str(min_p) if min_p is not None else "")
@@ -550,10 +549,10 @@ class MainWindow(QMainWindow):
         
         try:
             # 값 읽기
-            sweet = self.pref_sweet_slider.value()
-            smoky = self.pref_smoky_slider.value()
-            fruity = self.pref_fruity_slider.value()
-            spicy = self.pref_spicy_slider.value()
+            sweetness = self.pref_sweetness_slider.value()
+            smoke = self.pref_smoke_slider.value()
+            body = self.pref_body_slider.value()
+            richness = self.pref_richness_slider.value()
             
             min_p_str = self.pref_price_min_input.text()
             max_p_str = self.pref_price_max_input.text()
@@ -561,10 +560,10 @@ class MainWindow(QMainWindow):
             max_p = int(max_p_str) if max_p_str else None
             
             # 업데이트
-            preference.update_preference('sweetness', sweet)
-            preference.update_preference('smoky', smoky)
-            preference.update_preference('fruity', fruity)
-            preference.update_preference('spicy', spicy)
+            preference.update_preference('sweetness', sweetness)
+            preference.update_preference('smoke', smoke)
+            preference.update_preference('fruity', body)
+            preference.update_preference('spicy', richness)
             preference.update_price_range(min_p, max_p)
             
             QMessageBox.information(self, "저장 완료", "선호도가 저장되었습니다.")
