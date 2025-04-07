@@ -62,6 +62,25 @@ class MainWindow(QMainWindow):
         self.sort_combo.currentIndexChanged.connect(self.on_sort_changed)
         sort_layout.addWidget(self.sort_combo)
         left_layout.addLayout(sort_layout)
+
+        # 필터링 옵션
+        filter_layout = QHBoxLayout()
+        filter_layout.addWidget(QLabel("필터링:"))
+        self.filter_price_min = QLineEdit()
+        self.filter_price_min.setPlaceholderText("최소 가격")
+        self.filter_price_min.setValidator(QIntValidator(0, 9999999))
+        self.filter_price_max = QLineEdit()
+        self.filter_price_max.setPlaceholderText("최대 가격")
+        self.filter_price_max.setValidator(QIntValidator(0, 9999999))
+        filter_layout.addWidget(self.filter_price_min)
+        filter_layout.addWidget(self.filter_price_max)
+        left_layout.addLayout(filter_layout)
+        # 필터링 버튼
+        self.filter_button = QPushButton("적용")
+        self.filter_button.clicked.connect(self.on_filter_clicked)
+        filter_layout.addWidget(self.filter_button)
+        left_layout.addLayout(filter_layout)
+
         
         # 위스키 목록
         self.whiskey_list_widget = QListWidget()
@@ -271,10 +290,22 @@ class MainWindow(QMainWindow):
             '도수 (낮은순)': ('alcohol_percentage', False), '도수 (높은순)': ('alcohol_percentage', True),
         }
         sort_by, reverse_sort = sort_key_map.get(sort_option, ('name', False))
+
+        # 가격 필터링
+        min_price_str = self.filter_price_min.text()
+        max_price_str = self.filter_price_max.text()
+        min_price = int(min_price_str) if min_price_str else None
+        max_price = int(max_price_str) if max_price_str else None
         
         try:
             # 검색 결과 가져오기
             search_results = self.system_reference.whiskey_catalog.search_whiskeys(search_term)
+
+            # 필터링 조건 적용
+            if min_price is not None:
+                search_results = [w for w in search_results if w.price >= min_price]
+            if max_price is not None:
+                search_results = [w for w in search_results if w.price <= max_price]
             
             # 정렬
             sorted_list = self.system_reference.whiskey_catalog.sort_whiskeys(
@@ -516,6 +547,11 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def on_sort_changed(self):
         """정렬 옵션 변경 시 호출"""
+        self.update_whiskey_list()
+    
+    @pyqtSlot()
+    def on_filter_clicked(self):
+        """필터링 버튼 클릭 시 호출"""
         self.update_whiskey_list()
     
     @pyqtSlot()

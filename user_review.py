@@ -1,4 +1,3 @@
-# user_review.py - 간소화 버전
 import datetime
 
 class User_Review:

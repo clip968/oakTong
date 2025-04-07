@@ -1,4 +1,3 @@
-# system.py - 간소화 버전
 import os
 import json
 import datetime
