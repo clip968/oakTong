@@ -196,20 +196,51 @@ class MainWindow(QMainWindow):
         self.history_tab = QWidget()
         layout = QHBoxLayout(self.history_tab)
         
+        # 최근 본 위스키
         viewed_layout = QVBoxLayout()
         viewed_layout.addWidget(QLabel("최근 본 위스키"))
         self.viewed_list_widget = QListWidget()
+        self.viewed_list_widget.itemClicked.connect(self.on_history_item_clicked)
         viewed_layout.addWidget(self.viewed_list_widget)
         layout.addLayout(viewed_layout)
         
+        # 내 컬렉션
         collection_layout = QVBoxLayout()
         collection_layout.addWidget(QLabel("내 컬렉션"))
         self.collection_list_widget = QListWidget()
+        self.collection_list_widget.itemClicked.connect(self.on_history_item_clicked)
         collection_layout.addWidget(self.collection_list_widget)
         layout.addLayout(collection_layout)
         
+        # 리뷰 작성한 위스키 (새로 추가)
+        reviewed_layout = QVBoxLayout()
+        reviewed_layout.addWidget(QLabel("리뷰 작성한 위스키"))
+        self.reviewed_list_widget = QListWidget()
+        self.reviewed_list_widget.itemClicked.connect(self.on_history_item_clicked)
+        reviewed_layout.addWidget(self.reviewed_list_widget)
+        layout.addLayout(reviewed_layout)
+        
         self.tab_widget.addTab(self.history_tab, "활동 기록")
-    
+    @pyqtSlot(QListWidgetItem)
+    def on_history_item_clicked(self, item):
+        whiskey_id = item.data(Qt.UserRole)
+        
+        if whiskey_id:
+            # 메인 목록에서 해당 위스키 찾기
+            found = False
+            for i in range(self.whiskey_list_widget.count()):
+                list_item = self.whiskey_list_widget.item(i)
+                if list_item.data(Qt.UserRole) == whiskey_id:
+                    self.whiskey_list_widget.setCurrentItem(list_item)
+                    self.tab_widget.setCurrentWidget(self.details_tab)
+                    found = True
+                    break
+            
+            if not found:
+                # 현재 필터링된 목록에 없는 경우 직접 상세 정보 표시
+                self.display_whiskey_details(whiskey_id)
+                self.tab_widget.setCurrentWidget(self.details_tab)
+                
     def init_recommend_tab(self):
         self.recommend_tab = QWidget()
         layout = QVBoxLayout(self.recommend_tab)
@@ -447,6 +478,7 @@ class MainWindow(QMainWindow):
         
         self.viewed_list_widget.clear()
         self.collection_list_widget.clear()
+        self.reviewed_list_widget.clear()  # 새로 추가된 목록도 초기화
         
         if history:
             # 최근 본 위스키 표시
@@ -467,6 +499,15 @@ class MainWindow(QMainWindow):
                 item = QListWidgetItem(name)
                 item.setData(Qt.UserRole, whiskey_id)
                 self.collection_list_widget.addItem(item)
+            
+            # 리뷰 작성한 위스키 표시 (새로 추가)
+            reviewed_ids = history.get_reviewed_whiskeys()
+            for whiskey_id in reviewed_ids:
+                whiskey = self.system_reference.whiskey_catalog.get_whiskey_details(whiskey_id)
+                name = whiskey.name if whiskey else f"ID: {whiskey_id}"
+                item = QListWidgetItem(name)
+                item.setData(Qt.UserRole, whiskey_id)
+                self.reviewed_list_widget.addItem(item)
     
     def update_review_display(self, whiskey_id):
         self.review_list_widget.clear()
@@ -578,8 +619,8 @@ class MainWindow(QMainWindow):
             # 업데이트
             preference.update_preference('sweetness', sweetness)
             preference.update_preference('smoke', smoke)
-            preference.update_preference('fruity', body)
-            preference.update_preference('spicy', richness)
+            preference.update_preference('body', body)
+            preference.update_preference('richness', richness)
             preference.update_price_range(min_p, max_p)
             
             QMessageBox.information(self, "저장 완료", "선호도가 저장되었습니다.")
@@ -742,6 +783,9 @@ class MainWindow(QMainWindow):
                 self.new_review_rating_spinbox.setValue(3)
                 self.new_review_text_input.clear()
                 self.update_review_display(whiskey_id)
+                
+                # 활동 기록 업데이트 (리뷰 작성한 위스키 목록 갱신)
+                self.update_history_display()
             else:
                 QMessageBox.warning(
                     self, "등록 실패", "리뷰를 등록하지 못했습니다. 시스템 로그를 확인하세요."

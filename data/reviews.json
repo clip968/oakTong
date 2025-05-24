@@ -6,5 +6,37 @@
         "rating": 3,
         "review_text": "ㅈㄴ 맛없음",
         "review_date": "2025-04-07T12:11:02.315188"
+    },
+    "rev_clip968_W064_1748064497": {
+        "review_id": "rev_clip968_W064_1748064497",
+        "user_id": "clip968",
+        "whiskey_id": "W064",
+        "rating": 5,
+        "review_text": "60도의 고도수 위스키 치고 매우 부드러우면서 셰리의 향이 매우 취향이었습니다",
+        "review_date": "2025-05-24T14:28:17.793825"
+    },
+    "rev_clip968_W102_1748065205": {
+        "review_id": "rev_clip968_W102_1748065205",
+        "user_id": "clip968",
+        "whiskey_id": "W102",
+        "rating": 5,
+        "review_text": "글랜파클라스와 더불어 셰리 cs 중에서 가장 좋아하는 위스키 중 하나입니다. 61도의 고도수임에도 불구하고 매우 부드러웠습니다!",
+        "review_date": "2025-05-24T14:40:05.076085"
+    },
+    "rev_clip968_W174_1748067705": {
+        "review_id": "rev_clip968_W174_1748067705",
+        "user_id": "clip968",
+        "whiskey_id": "W174",
+        "rating": 3,
+        "review_text": "a",
+        "review_date": "2025-05-24T15:21:45.979865"
+    },
+    "rev_clip968_W365_1748067746": {
+        "review_id": "rev_clip968_W365_1748067746",
+        "user_id": "clip968",
+        "whiskey_id": "W365",
+        "rating": 1,
+        "review_text": "창조의 베스트 위스키",
+        "review_date": "2025-05-24T15:22:26.476202"
     }
 }

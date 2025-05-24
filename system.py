@@ -2,7 +2,10 @@ import os
 import json
 import datetime
 import random
-
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import base64
 # 클래스 임포트
 from user import User
 from user_preference import User_Preference
@@ -37,12 +40,12 @@ class System:
         print("시스템 초기화 완료")
     
     def set_ui_reference(self, ui):
-        """UI 참조 설정"""
+        
         self.ui_reference = ui
         print("UI 참조 설정 완료")
     
     def initialize(self):
-        """시스템 초기화 및 사용자 정보 로드"""
+        
         print("시스템 초기화 중...")
         
         # 위스키 카탈로그 로드
@@ -62,7 +65,7 @@ class System:
             return False
     
     def register_new_user(self, user_info):
-        """새 사용자 등록"""
+
         user_id = user_info.get('user_id')
         user_name = user_info.get('user_name')
         
@@ -82,11 +85,10 @@ class System:
         return True
     
     def get_current_user(self):
-        """현재 사용자 반환"""
         return self.current_user
     
     def set_recommendation_engine(self, engine_type):
-        """추천 엔진 설정"""
+        
         try:
             self.recommendation_engine = engine_type(self.current_user, self.whiskey_catalog)
             print(f"추천 엔진 설정: {engine_type.__name__}")
@@ -148,7 +150,6 @@ class System:
             return False
     
     def load_system_state(self):
-        """시스템 상태 로드"""
         # 사용자 데이터 로드
         user_loaded = False
         
@@ -244,7 +245,7 @@ class System:
         return user_loaded
     
     def load_whiskey_catalog(self):
-        """위스키 카탈로그 로드"""
+        
         if not os.path.exists(WHISKEY_FILE):
             print(f"위스키 카탈로그 파일이 없습니다: {WHISKEY_FILE}")
             return False
@@ -297,7 +298,7 @@ class System:
     
     
     def get_whiskey_details_for_display(self, whiskey_id):
-        """위스키 상세 정보 반환"""
+        
         whiskey = self.whiskey_catalog.get_whiskey_details(whiskey_id)
         return whiskey.get_full_details() if whiskey else None
     
@@ -320,8 +321,179 @@ class System:
         self.current_user.add_review_id(review_id)
         whiskey.add_review_id(review_id)
         
+        # 사용자 히스토리에 리뷰 작성 위스키 추가
+        history = self.current_user.get_history()
+        if history:
+            history.add_reviewed_whiskey(whiskey_id)
+        
         print(f"리뷰 생성 완료: {review_id}")
         return new_review
+    
+    def save_system_state(self):
+        if not self.current_user:
+            print("저장할 사용자 데이터가 없습니다")
+            return False
+        
+        # 사용자 데이터 구성
+        user_data = {
+            "user_info": self.current_user.get_user_default_information(),
+            "review_ids": self.current_user.get_review_ids(),
+            "preference": None,
+            "history": None
+        }
+        
+        # 선호도 데이터
+        if self.current_user.get_preference():
+            pref = self.current_user.get_preference()
+            user_data["preference"] = {
+                "body": pref.body_preference,
+                "richness": pref.richness_preference,
+                "smoke": pref.smoke_preference,
+                "sweetness": pref.sweetness_preference,
+                "price_range": [pref.preferred_price_range[0], pref.preferred_price_range[1]]
+            }
+        
+        # 기록 데이터
+        if self.current_user.get_history():
+            hist = self.current_user.get_history()
+            viewed = [(wid, dt.isoformat()) for wid, dt in hist.viewed_whiskeys]
+            user_data["history"] = {
+                "viewed": viewed,
+                "collection": hist.get_collection(),
+                "reviewed": hist.get_reviewed_whiskeys()  # 리뷰 작성한 위스키 목록 추가
+            }
+        
+        # 파일 저장
+        try:
+            with open(USER_FILE, 'w', encoding='utf-8') as f:
+                json.dump(user_data, f, indent=4, ensure_ascii=False)
+            
+            # 리뷰 저장
+            reviews_to_save = {}
+            for rid, review in self.all_reviews.items():
+                reviews_to_save[rid] = review.get_review_details()
+            
+            with open(REVIEWS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(reviews_to_save, f, indent=4, ensure_ascii=False)
+            
+            print("시스템 상태 저장 완료")
+            return True
+        except Exception as e:
+            print(f"저장 오류: {e}")
+            return False
+    def load_system_state(self):
+        # 사용자 데이터 로드
+        user_loaded = False
+        
+        if os.path.exists(USER_FILE):
+            try:
+                with open(USER_FILE, 'r', encoding='utf-8') as f:
+                    loaded_data = json.load(f)
+                
+                user_info = loaded_data.get("user_info")
+                if user_info and 'user_id' in user_info:
+                    # 사용자 생성
+                    loaded_user = User(
+                        user_id=user_info['user_id'],
+                        user_name=user_info.get('user_name', '사용자'),
+                        user_age=user_info.get('user_age'),
+                        user_sex=user_info.get('user_sex')
+                    )
+                    
+                    # 선호도 설정
+                    pref_data = loaded_data.get("preference")
+                    if pref_data:
+                        preference = User_Preference(loaded_user.user_id)
+                        preference.sweetness_preference = pref_data.get('sweetness', 3)
+                        preference.smoke_preference = pref_data.get('smoke', 3)
+                        preference.richness_preference = pref_data.get('richness', 3)
+                        preference.body_preference = pref_data.get('body', 3)
+                        
+                        price_range = pref_data.get('price_range', [None, None])
+                        preference.preferred_price_range = (price_range[0], price_range[1])
+                        
+                        loaded_user.set_preference(preference)
+                    else:
+                        loaded_user.set_preference(User_Preference(loaded_user.user_id))
+                    
+                    # 기록 설정
+                    hist_data = loaded_data.get("history")
+                    if hist_data:
+                        history = User_History(loaded_user.user_id)
+                        history.added_whiskeys = hist_data.get('collection', [])
+                        history.reviewed_whiskeys = hist_data.get('reviewed', [])  # 리뷰 작성한 위스키 목록 로드
+                        
+                        viewed_raw = hist_data.get('viewed', [])
+                        for wid, dt_str in viewed_raw:
+                            try:
+                                history.viewed_whiskeys.append(
+                                    (wid, datetime.datetime.fromisoformat(dt_str))
+                                )
+                            except:
+                                print(f"날짜 변환 오류: {dt_str}")
+                        
+                        loaded_user.set_history(history)
+                    else:
+                        loaded_user.set_history(User_History(loaded_user.user_id))
+                    
+                    # 리뷰 ID 설정
+                    loaded_user.user_review_ids = loaded_data.get("review_ids", [])
+                    
+                    self.current_user = loaded_user
+                    user_loaded = True
+                    print(f"사용자 데이터 로드 완료: {self.current_user.user_id}")
+            except Exception as e:
+                print(f"사용자 데이터 로드 오류: {e}")
+        
+        # 리뷰 데이터 로드
+        if os.path.exists(REVIEWS_FILE):
+            try:
+                with open(REVIEWS_FILE, 'r', encoding='utf-8') as f:
+                    loaded_reviews = json.load(f)
+                
+                self.all_reviews = {}
+                for review_id, review_data in loaded_reviews.items():
+                    try:
+                        review = User_Review(
+                            review_id=review_id,
+                            user_id=review_data['user_id'],
+                            whiskey_id=review_data['whiskey_id'],
+                            rating=review_data['rating'],
+                            review_text=review_data.get('review_text', '')
+                        )
+                        
+                        if 'review_date' in review_data:
+                            review.review_date = datetime.datetime.fromisoformat(
+                                review_data['review_date']
+                            )
+                        
+                        self.all_reviews[review_id] = review
+                    except Exception as e:
+                        print(f"리뷰 데이터 오류 (ID {review_id}): {e}")
+                
+                print(f"리뷰 {len(self.all_reviews)}개 로드 완료")
+            except Exception as e:
+                print(f"리뷰 데이터 로드 오류: {e}")
+        
+        return user_loaded
+    
+    def get_user_reviewed_whiskeys(self):
+        if not self.current_user:
+            return []
+        
+        history = self.current_user.get_history()
+        if not history:
+            return []
+        
+        reviewed_ids = history.get_reviewed_whiskeys()
+        reviewed_whiskeys = []
+        
+        for whiskey_id in reviewed_ids:
+            whiskey = self.whiskey_catalog.get_whiskey_details(whiskey_id)
+            if whiskey:
+                reviewed_whiskeys.append(whiskey.get_basic_info())
+        
+        return reviewed_whiskeys
     
     def get_reviews_for_whiskey(self, whiskey_id):
         return [review for review in self.all_reviews.values() 
@@ -406,7 +578,7 @@ class System:
         self.save_system_state()
         
         sys.exit(exit_code)
-
+    
 # 프로그램 실행 진입점
 if __name__ == '__main__':
     system = System()

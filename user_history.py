@@ -10,6 +10,7 @@ class User_History:
         self.user_id = user_id
         self.viewed_whiskeys = deque(maxlen=self.MAX_VIEWED_ITEMS)  # (위스키ID, 조회시각)
         self.added_whiskeys = []  # 컬렉션에 추가한 위스키 ID
+        self.reviewed_whiskeys = []  # 리뷰를 작성한 위스키 ID 목록
     
     # 조회한 위스키 ID 추가
     def add_viewed_whiskey(self, whiskey_id):
@@ -26,6 +27,12 @@ class User_History:
         if whiskey_id in self.added_whiskeys:
             self.added_whiskeys.remove(whiskey_id)
     
+    # 리뷰 작성한 위스키 ID 추가
+    def add_reviewed_whiskey(self, whiskey_id):
+        if whiskey_id not in self.reviewed_whiskeys:
+            self.reviewed_whiskeys.append(whiskey_id)
+            print(f"리뷰 작성 위스키 목록에 추가: {whiskey_id}")
+    
     # 최근 조회한 위스키 목록 반환
     def get_recently_viewed(self, count=None):
         items = list(reversed(self.viewed_whiskeys))
@@ -37,6 +44,14 @@ class User_History:
     def get_collection(self):
         return self.added_whiskeys[:]
     
+    # 리뷰 작성한 위스키 목록 반환
+    def get_reviewed_whiskeys(self):
+        return self.reviewed_whiskeys[:]
+    
     # 컬렉션에 있는지 확인
     def is_in_collection(self, whiskey_id):
         return whiskey_id in self.added_whiskeys
+    
+    # 리뷰를 작성했는지 확인
+    def has_reviewed(self, whiskey_id):
+        return whiskey_id in self.reviewed_whiskeys
