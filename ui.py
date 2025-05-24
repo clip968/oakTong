@@ -8,10 +8,8 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QIntValidator, QPixmap
 
 class MainWindow(QMainWindow):
-    """메인 애플리케이션 윈도우 클래스"""
     
     def __init__(self, system_reference, parent=None):
-        """메인 윈도우 초기화"""
         super().__init__(parent)
         self.system_reference = system_reference
         
@@ -27,8 +25,6 @@ class MainWindow(QMainWindow):
         self.init_ui()  # UI 요소 생성 및 배치
     
     def init_ui(self):
-        """UI 요소 생성 및 배치"""
-        # --- 메인 레이아웃 설정 ---
         main_widget = QWidget(self)
         self.setCentralWidget(main_widget)
         main_layout = QHBoxLayout(main_widget)
@@ -197,7 +193,6 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.preference_tab, "나의 선호도")
     
     def init_history_tab(self):
-        """활동 기록 탭 UI 생성"""
         self.history_tab = QWidget()
         layout = QHBoxLayout(self.history_tab)
         
@@ -216,7 +211,6 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.history_tab, "활동 기록")
     
     def init_recommend_tab(self):
-        """추천 탭 UI 생성"""
         self.recommend_tab = QWidget()
         layout = QVBoxLayout(self.recommend_tab)
         
@@ -238,7 +232,6 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.recommend_tab, "위스키 추천")
     
     def init_review_tab(self):
-        """리뷰 탭 UI 생성"""
         self.review_tab = QWidget()
         layout = QVBoxLayout(self.review_tab)
         layout.addWidget(QLabel("리뷰 (현재 선택된 위스키)"))
@@ -266,7 +259,6 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.review_tab, "리뷰")
     
     def load_initial_data(self):
-        """초기 데이터 로드 및 UI에 표시"""
         print("초기 데이터 로드 중...")
         user = self.system_reference.get_current_user()
         if not user:
@@ -280,7 +272,6 @@ class MainWindow(QMainWindow):
         self.update_history_display()
     
     def update_whiskey_list(self):
-        """위스키 목록 업데이트"""
         search_term = self.search_input.text()
         sort_option = self.sort_combo.currentText()
         
@@ -347,7 +338,6 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "오류", f"위스키 목록을 불러오는 중 오류 발생:\n{e}")
     
     def display_whiskey_details(self, whiskey_id):
-        """선택된 위스키 상세 정보 표시"""
         self.current_selected_whiskey_id = whiskey_id
         
         # 버튼 활성화 상태 설정
@@ -421,7 +411,6 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "오류", f"위스키 상세 정보를 불러오는 중 오류 발생:\n{e}")
     
     def display_user_preferences(self, preference):
-        """사용자 선호도 UI에 표시"""
         if preference:
             # 시그널 비활성화
             sliders = [self.pref_sweetness_slider, self.pref_smoke_slider, 
@@ -453,7 +442,6 @@ class MainWindow(QMainWindow):
             print("표시할 선호도 정보가 없습니다.")
     
     def update_history_display(self):
-        """활동 기록 표시 업데이트"""
         user = self.system_reference.get_current_user()
         history = user.get_history() if user else None
         
@@ -481,7 +469,6 @@ class MainWindow(QMainWindow):
                 self.collection_list_widget.addItem(item)
     
     def update_review_display(self, whiskey_id):
-        """특정 위스키 리뷰 목록 업데이트"""
         self.review_list_widget.clear()
         
         try:
@@ -508,7 +495,6 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "오류", f"리뷰를 불러오는 중 오류 발생:\n{e}")
     
     def prompt_for_user_setup(self):
-        """사용자 정보 입력 다이얼로그"""
         user_id, ok1 = QInputDialog.getText(self, '초기 사용자 설정', '사용자 ID를 입력하세요:')
         
         if ok1 and user_id.strip():
@@ -538,25 +524,21 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "입력 필요", "사용자 ID가 필요합니다.")
             return False
     
-    # --- 이벤트 핸들러 ---
+    # 여기서 부터 이벤트 핸들러
     @pyqtSlot()
     def on_search_changed(self):
-        """검색어 변경 시 호출"""
         self.update_whiskey_list()
     
     @pyqtSlot()
     def on_sort_changed(self):
-        """정렬 옵션 변경 시 호출"""
         self.update_whiskey_list()
     
     @pyqtSlot()
     def on_filter_clicked(self):
-        """필터링 버튼 클릭 시 호출"""
         self.update_whiskey_list()
     
     @pyqtSlot()
     def on_whiskey_selected(self):
-        """위스키 선택 시 호출"""
         selected_items = self.whiskey_list_widget.selectedItems()
         if selected_items:
             selected_item = selected_items[0]
@@ -567,7 +549,6 @@ class MainWindow(QMainWindow):
     
     @pyqtSlot()
     def on_show_all_clicked(self):
-        """'전체 목록' 버튼 클릭 시 호출"""
         self.search_input.blockSignals(True)
         self.search_input.clear()
         self.search_input.blockSignals(False)
@@ -575,7 +556,6 @@ class MainWindow(QMainWindow):
     
     @pyqtSlot()
     def on_save_prefs_clicked(self):
-        """선호도 저장 버튼 클릭 시 호출"""
         user = self.system_reference.get_current_user()
         preference = user.get_preference() if user else None
         
@@ -612,7 +592,6 @@ class MainWindow(QMainWindow):
     
     @pyqtSlot()
     def on_add_to_collection_clicked(self):
-        """컬렉션 추가/제거 버튼 클릭 시 호출"""
         if not self.current_selected_whiskey_id:
             QMessageBox.warning(self, "선택 필요", "먼저 위스키를 선택해주세요.")
             return
@@ -648,7 +627,6 @@ class MainWindow(QMainWindow):
     
     @pyqtSlot()
     def on_get_pref_recs_clicked(self):
-        """선호도 기반 추천 버튼 클릭 시 호출"""
         self.recommendation_list_widget.clear()
         self.recommendation_list_widget.addItem("추천 목록을 불러오는 중...")
         QApplication.processEvents()
@@ -676,7 +654,6 @@ class MainWindow(QMainWindow):
     
     @pyqtSlot()
     def on_get_similar_recs_clicked(self):
-        """유사 위스키 추천 버튼 클릭 시 호출"""
         if not self.current_selected_whiskey_id:
             QMessageBox.warning(
                 self, "선택 필요", "유사한 위스키를 찾으려면 먼저 기준 위스키를 선택해주세요."
@@ -724,7 +701,6 @@ class MainWindow(QMainWindow):
     
     @pyqtSlot(QListWidgetItem)
     def on_recommendation_item_clicked(self, item):
-        """추천 목록 아이템 클릭 시 호출"""
         whiskey_id = item.data(Qt.UserRole)
         
         if whiskey_id:
@@ -750,7 +726,6 @@ class MainWindow(QMainWindow):
     
     @pyqtSlot()
     def on_add_review_clicked(self):
-        """리뷰 등록 버튼 클릭 시 호출"""
         if not self.current_selected_whiskey_id:
             QMessageBox.warning(self, "선택 필요", "리뷰를 작성할 위스키를 먼저 선택해주세요.")
             return
@@ -776,7 +751,6 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "오류", f"리뷰 등록 중 오류 발생:\n{e}")
     
     def closeEvent(self, event):
-        """창 닫기 시 호출"""
         reply = QMessageBox.question(
             self, '종료 확인', "애플리케이션을 종료하시겠습니까?\n(변경사항이 저장됩니다)",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No

@@ -9,9 +9,7 @@ class Recommendation_Similar(Recommendation):
         self.similarity_threshold = 0.5  # 유사도 임계값
     
     def get_recommendations(self, count, base_whiskey_id=None):
-        # 유사 위스키 추천 목록 반환
         if not base_whiskey_id:
-            # 기준 위스키가 없으면 최근 본 위스키 사용
             history = self.user_reference.get_history()
             if history:
                 recently_viewed = history.get_recently_viewed(1)

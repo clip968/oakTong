@@ -2,7 +2,6 @@ class Recommendation:
     # 추천 시스템 기본 클래스
     
     def __init__(self, user_reference, whiskeys_reference):
-        # 초기화
         self.user_reference = user_reference
         self.whiskeys_reference = whiskeys_reference
     

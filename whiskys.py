@@ -33,7 +33,7 @@ class Whiskys:
         return results
     
     def sort_whiskeys(self, whiskey_list, sort_criteria, reverse=False):
-        """위스키 목록 정렬"""
+        #위스키 정렬
         sorted_list = whiskey_list[:]  # 복사본 생성
         
         if sort_criteria == 'name':

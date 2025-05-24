@@ -22,10 +22,8 @@ WHISKEY_FILE = os.path.join(DATA_DIR, "whiskey_catalog.json")
 REVIEWS_FILE = os.path.join(DATA_DIR, "reviews.json")
 
 class System:
-    """애플리케이션 시스템 관리 클래스"""
     
     def __init__(self):
-        """시스템 초기화"""
         self.current_user = None
         self.whiskey_catalog = Whiskys()
         self.all_reviews = {}
@@ -304,7 +302,6 @@ class System:
         return whiskey.get_full_details() if whiskey else None
     
     def create_and_add_review(self, whiskey_id, rating, text):
-        """리뷰 생성 및 추가"""
         if not self.current_user:
             return None
         
@@ -327,12 +324,10 @@ class System:
         return new_review
     
     def get_reviews_for_whiskey(self, whiskey_id):
-        """특정 위스키에 대한 리뷰 목록 반환"""
         return [review for review in self.all_reviews.values() 
                 if review.whiskey_id == whiskey_id]
     
     def get_recommendations(self, count, method_type=None, base_whiskey_id=None):
-        """추천 위스키 목록 반환"""
         if not self.current_user:
             print("사용자 정보 없음, 추천 불가")
             return []
