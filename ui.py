@@ -9,11 +9,16 @@ from PyQt5.QtGui import QIntValidator, QPixmap
 
 class MainWindow(QMainWindow):
     
-    def __init__(self, system_reference, parent=None):
+    def __init__(self, system_reference=None, parent=None):
         super().__init__(parent)
-        self.system_reference = system_reference
+        # Singleton Pattern 사용: 전역 시스템 인스턴스 참조
+        if system_reference is None:
+            from system import System
+            self.system_reference = System.get_instance()
+        else:
+            self.system_reference = system_reference
         
-        # 시스템에 UI 참조 설정
+        # 시스템에 UI 참조 설정 (Observer Pattern 기반)
         if hasattr(self.system_reference, 'set_ui_reference'):
             self.system_reference.set_ui_reference(self)
         
