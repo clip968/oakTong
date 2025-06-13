@@ -26,7 +26,19 @@ REVIEWS_FILE = os.path.join(DATA_DIR, "reviews.json")
 
 class System:
     
+    _instance = None
+    _initialized = False
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
     def __init__(self):
+        # Singleton이므로 초기화는 한 번만 수행
+        if System._initialized:
+            return
+        
         self.current_user = None
         self.whiskey_catalog = Whiskys()
         self.all_reviews = {}
@@ -37,7 +49,14 @@ class System:
         if not os.path.exists(DATA_DIR):
             os.makedirs(DATA_DIR)
         
-        print("시스템 초기화 완료")
+        System._initialized = True
+        print("시스템 초기화 완료 (Singleton)")
+    
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
     
     def set_ui_reference(self, ui):
         
@@ -63,7 +82,8 @@ class System:
         else:
             print("사용자 데이터 없음")
             return False
-    
+        
+    # Factory Method Pattern: 사용자 및 관련 객체들 생성
     def register_new_user(self, user_info):
 
         user_id = user_info.get('user_id')
@@ -73,7 +93,7 @@ class System:
             print("사용자 ID와 이름이 필요합니다")
             return False
         
-        # 새 사용자 생성
+        # 새 사용자 생성 (Factory Method)
         new_user = User(user_id, user_name)
         new_user.set_preference(User_Preference(user_id))
         new_user.set_history(User_History(user_id))
@@ -303,6 +323,11 @@ class System:
         return whiskey.get_full_details() if whiskey else None
     
     def create_and_add_review(self, whiskey_id, rating, text):
+        """
+        Factory Method Pattern: 리뷰 객체 생성 및 시스템 등록
+        - 복잡한 리뷰 ID 생성 규칙
+        - 리뷰 객체 생성과 시스템 등록을 한 번에 처리
+        """
         if not self.current_user:
             return None
         
@@ -310,13 +335,13 @@ class System:
         if not whiskey:
             return None
         
-        # 리뷰 ID 생성
+        # Factory Method: 리뷰 ID 생성 규칙
         review_id = f"rev_{self.current_user.user_id}_{whiskey_id}_{int(datetime.datetime.now().timestamp())}"
         
-        # 리뷰 생성
+        # Factory Method: 리뷰 생성 및 시스템 등록
         new_review = User_Review(review_id, self.current_user.user_id, whiskey_id, rating, text)
         
-        # 리뷰 저장
+        # 시스템에 등록
         self.all_reviews[review_id] = new_review
         self.current_user.add_review_id(review_id)
         whiskey.add_review_id(review_id)
@@ -537,7 +562,6 @@ class System:
             return []
     
     def run(self):
-        """애플리케이션 실행"""
         print("애플리케이션 시작...")
         
         # PyQt5 모듈 임포트
@@ -550,11 +574,14 @@ class System:
         # UI 임포트
         from ui import MainWindow
         
-        # 메인 윈도우 생성
-        main_window = MainWindow(system_reference=self)
+        # Singleton 시스템 사용
+        system_instance = System.get_instance()
+        
+        # 메인 윈도우 생성 (Singleton 시스템 전달)
+        main_window = MainWindow(system_reference=system_instance)
         
         # 초기화 확인
-        initialization_successful = self.initialize()
+        initialization_successful = system_instance.initialize()
         
         # 사용자 설정 필요 시
         if not initialization_successful:
@@ -568,17 +595,17 @@ class System:
             # 정상 로드 시 초기 데이터 표시
             main_window.load_initial_data()
         
-        # 창 표시
+        # 창 표시 (이 부분이 중요!)
         main_window.show()
         
         # 이벤트 루프 실행
         exit_code = app.exec_()
         
         # 종료 전 상태 저장
-        self.save_system_state()
+        system_instance.save_system_state()
         
         sys.exit(exit_code)
-    
+
 # 프로그램 실행 진입점
 if __name__ == '__main__':
     system = System()
