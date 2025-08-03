@@ -381,31 +381,21 @@ class WhiskeyApp {
     createWhiskeyCard(whiskey, reason = null) {
         const card = document.createElement('div');
         card.className = 'whiskey-card';
-        card.onclick = () => openWhiskeyDetail(whiskey.whiskey_id);
+        card.onclick = () => this.openWhiskeyModal(whiskey);
 
-        const flavorsHtml = (whiskey.flavorProfile || []).map(flavor => 
+        const flavorsHtml = whiskey.flavorProfile.map(flavor => 
             `<span class="flavor-tag">${flavor}</span>`
         ).join('');
 
         const reasonHtml = reason ? 
             `<div class="recommendation-reason">${reason}</div>` : '';
-        
-        const s3BaseUrl = 'https://oaktong.s3.ap-northeast-2.amazonaws.com/public/images/';
-        const imageFileName = (whiskey.image_path || whiskey.imageUrl || '').split('/').pop();
-        const imageUrl = imageFileName ? `${s3BaseUrl}${imageFileName}` : '';
 
         card.innerHTML = `
-            <div class="whiskey-image">
-                ${imageUrl ?
-                    `<img src="${imageUrl}" alt="${whiskey.name}" onerror="this.style.display='none'; this.parentElement.querySelector('.whiskey-placeholder').style.display='block';">
-                     <div class="whiskey-placeholder" style="display:none;">🥃</div>` :
-                    '<div class="whiskey-placeholder">🥃</div>'
-                }
-            </div>
+            <div class="whiskey-image">🥃</div>
             <div class="whiskey-name">${whiskey.name}</div>
-            <div class="whiskey-type">${whiskey.type || 'N/A'} | ${whiskey.origin || 'N/A'}</div>
-            <div class="whiskey-price">${(whiskey.price || 0).toLocaleString()}원</div>
-            <div class="whiskey-description">${whiskey.description || ''}</div>
+            <div class="whiskey-type">${whiskey.type} | ${whiskey.country}</div>
+            <div class="whiskey-price">${whiskey.price.toLocaleString()}원</div>
+            <div class="whiskey-description">${whiskey.description}</div>
             <div class="whiskey-flavors">${flavorsHtml}</div>
             ${reasonHtml}
         `;
@@ -712,16 +702,12 @@ async function openWhiskeyDetail(whiskeyId) {
         }
 
         title.textContent = whiskey.name;
-
-        const s3BaseUrl = 'https://oaktong.s3.ap-northeast-2.amazonaws.com/public/images/';
-        const imageFileName = (whiskey.image_path || '').split('/').pop();
-        const imageUrl = imageFileName ? `${s3BaseUrl}${imageFileName}` : '';
         
         info.innerHTML = `
             <div class="whiskey-detail-card">
                 <div class="whiskey-image-large">
-                    ${imageUrl ? 
-                        `<img src="${imageUrl}" alt="${whiskey.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    ${whiskey.image_path ? 
+                        `<img src="${whiskey.image_path}" alt="${whiskey.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                          <div class="whiskey-placeholder-large" style="display:none;">🥃</div>` : 
                         `<div class="whiskey-placeholder-large">🥃</div>`
                     }
