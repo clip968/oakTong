@@ -383,15 +383,23 @@ class WhiskeyApp {
         card.className = 'whiskey-card';
         card.onclick = () => this.openWhiskeyModal(whiskey);
 
-        const flavorsHtml = whiskey.flavorProfile.map(flavor => 
+        const flavorsHtml = (whiskey.flavorProfile || []).map(flavor => 
             `<span class="flavor-tag">${flavor}</span>`
         ).join('');
 
         const reasonHtml = reason ? 
             `<div class="recommendation-reason">${reason}</div>` : '';
 
+        const imageUrl = whiskey.image_path || (whiskey.imageUrl || '');
+
         card.innerHTML = `
-            <div class="whiskey-image">🥃</div>
+            <div class="whiskey-image">
+                ${imageUrl ?
+                    `<img src="${imageUrl}" alt="${whiskey.name}" onerror="this.style.display='none'; this.parentElement.querySelector('.whiskey-placeholder').style.display='block';">
+                     <div class="whiskey-placeholder" style="display:none;">🥃</div>` :
+                    '<div class="whiskey-placeholder">🥃</div>'
+                }
+            </div>
             <div class="whiskey-name">${whiskey.name}</div>
             <div class="whiskey-type">${whiskey.type} | ${whiskey.country}</div>
             <div class="whiskey-price">${whiskey.price.toLocaleString()}원</div>
